@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6 flex flex-col items-center">
     <div class="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-      <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">📋 Gerenciar Anotações</h1>
+      <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Gerenciar Anotações</h1>
 
       <!-- Cadastro -->
       <form @submit.prevent="cadastrar" class="grid md:grid-cols-3 gap-4 mb-8">
