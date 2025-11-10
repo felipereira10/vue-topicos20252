@@ -1,84 +1,142 @@
 <template>
-  <div>
-    <form @submit.prevent="cadastrar">
-      <p>
-        <label id="textoLabel" for="texto">Texto: </label>
-        <input type="text" id="texto" v-model="novaAnotacao.texto" required />
+  <div class="min-h-screen bg-gray-50 p-6 flex flex-col items-center">
+    <div class="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+      <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">📋 Gerenciar Anotações</h1>
+
+      <!-- Cadastro -->
+      <form @submit.prevent="cadastrar" class="grid md:grid-cols-3 gap-4 mb-8">
+        <div>
+          <label for="texto" class="block text-sm font-medium text-gray-600 mb-1">Texto</label>
+          <input
+            type="text"
+            id="texto"
+            v-model="novaAnotacao.texto"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        <div>
+          <label for="dataHora" class="block text-sm font-medium text-gray-600 mb-1">Data/Hora</label>
+          <input
+            type="datetime-local"
+            id="dataHora"
+            v-model="novaAnotacao.dataHora"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        <div>
+          <label for="usuario" class="block text-sm font-medium text-gray-600 mb-1">Usuário</label>
+          <select
+            id="usuario"
+            v-model="novaAnotacao.usuario.id"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">
+              {{ usuario.nome }}
+            </option>
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          class="col-span-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-all mt-2"
+        >
+          Cadastrar
+        </button>
+      </form>
+
+      <!-- Pesquisa -->
+      <form @submit.prevent="pesquisar" class="grid md:grid-cols-2 gap-4 mb-6">
+        <div>
+          <label for="textoPesquisa" class="block text-sm font-medium text-gray-600 mb-1">Texto</label>
+          <input
+            type="text"
+            id="textoPesquisa"
+            v-model="textoPesquisa"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        <div>
+          <label for="nomeUsuarioPesquisa" class="block text-sm font-medium text-gray-600 mb-1">Usuário</label>
+          <select
+            id="nomeUsuarioPesquisa"
+            v-model="nomeUsuarioPesquisa"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.nome">
+              {{ usuario.nome }}
+            </option>
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          class="col-span-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all mt-2"
+        >
+          Pesquisar
+        </button>
+      </form>
+
+      <!-- Tabela -->
+      <div v-if="anotacoes.length > 0" class="overflow-x-auto">
+        <table class="w-full border-collapse border border-gray-200 text-sm">
+          <thead class="bg-blue-600 text-white">
+            <tr>
+              <th class="py-2 px-3 text-left">ID</th>
+              <th class="py-2 px-3 text-left">Texto</th>
+              <th class="py-2 px-3 text-left">Antiguidade (dias)</th>
+              <th class="py-2 px-3 text-left">Usuário</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="anotacao in anotacoes"
+              :key="anotacao.id"
+              class="hover:bg-gray-50 border-t border-gray-200"
+            >
+              <td class="py-2 px-3">{{ anotacao.id }}</td>
+              <td class="py-2 px-3">{{ anotacao.texto }}</td>
+              <td class="py-2 px-3">{{ antiguidade(anotacao.dataHora) }}</td>
+              <td class="py-2 px-3">{{ anotacao.usuario.nome }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p v-else class="text-center text-gray-500 mt-6">
+        Nenhum registro encontrado para os critérios fornecidos.
       </p>
-      <p>
-        <label id="dataHoraLabel" for="dataHora">Data/Hora: </label>
-        <input type="datetime-local" id="dataHora" v-model="novaAnotacao.dataHora" required />
-      </p>
-      <p>
-        <label id="usuarioLabel" for="usuario">Usuário: </label>
-        <select id="usuario" v-model="novaAnotacao.usuario.id" required>
-          <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">
-            {{ usuario.nome }}
-          </option>
-        </select>
-        <input type="number" id="usuarioInput" v-model="novaAnotacao.usuario.id" required />
-      </p>
-      <button type="submit">Cadastrar</button>
-    </form>
-    <form @submit.prevent="pesquisar">
-      <p>
-        <label id="textPesquisaLabel" for="textoPesquisa">Texto: </label>
-        <input type="text" id="textoPesquisa" v-model="textoPesquisa" required />
-      </p>
-      <p>
-        <label id="usuarioPesquisaLabel" for="nomeUsuarioPesquisa">Usuário: </label>
-        <select id="nomeUsuarioPesquisa" v-model="nomeUsuarioPesquisa" required>
-          <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.nome">
-            {{ usuario.nome }}
-          </option>
-        </select>
-        <input type="text" id="nomeUsuarioPesquisaInput" v-model="nomeUsuarioPesquisa" required />
-      </p>
-      <button type="submit">Pesquisar</button>
-    </form>
-    <table v-if="anotacoes.length > 0">
-      <thead>
-        <tr>
-          <th>Id</th>
-          <th>Texto</th>
-          <th>Antiguidade</th>
-          <th>Nome do Usuário</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="anotacao in anotacoes" :key="anotacao.id">
-          <th>{{ anotacao.id }}</th>
-          <th>{{ anotacao.texto }}</th>
-          <th>{{ antiguidade(anotacao.dataHora) }}</th>
-          <th>{{ anotacao.usuario.nome }}</th>
-        </tr>
-      </tbody>
-    </table>
-    <p v-else>Nenhum registro foi encontrado para os critérios fornecidos</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import { onMounted } from 'vue'
 
-interface usuario {
+interface Usuario {
   id: number
   nome?: string
   senha?: string
 }
 
-interface anotacao {
+interface Anotacao {
   id?: number
   texto: string
   dataHora: string
-  usuario: usuario
+  usuario: Usuario
 }
 
-const novaAnotacao = ref<anotacao>({ texto: '', dataHora: '', usuario: { id: 1 } })
-const anotacoes = ref<anotacao[]>([{ id: 1, texto: 'bla', dataHora: '', usuario: { id: 1 } }])
-const usuarios = ref<usuario[]>([{ id: 1, nome: 'admin' }])
+const novaAnotacao = ref<Anotacao>({ texto: '', dataHora: '', usuario: { id: 1 } })
+const anotacoes = ref<Anotacao[]>([])
+const usuarios = ref<Usuario[]>([])
 const erro = ref<string>('')
 const textoPesquisa = ref<string>('')
 const nomeUsuarioPesquisa = ref<string>('')
@@ -87,7 +145,7 @@ async function cadastrar() {
   try {
     erro.value = ''
     await axios.post('anotacao', novaAnotacao.value)
-    atualizar()
+    await atualizar()
     novaAnotacao.value.texto = ''
     novaAnotacao.value.dataHora = ''
   } catch (e) {
@@ -115,14 +173,9 @@ async function buscarUsuarios() {
 }
 
 function antiguidade(data: string) {
-  // Calcula a diferença em milissegundos
-  const diferencaEmMilissegundos = Date.now() - Date.parse(data)
-
-  // Define o número de milissegundos em um dia
-  const milissegundosPorDia = 1000 * 60 * 60 * 24
-
-  // Calcula a diferença em dias (usando Math.abs para garantir que seja positivo)
-  return Math.round(Math.abs(diferencaEmMilissegundos) / milissegundosPorDia)
+  const diff = Date.now() - Date.parse(data)
+  const dia = 1000 * 60 * 60 * 24
+  return Math.round(Math.abs(diff) / dia)
 }
 
 onMounted(() => {
